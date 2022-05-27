@@ -19,12 +19,17 @@ import com.example.bankdata.service.RetrofitService
 import com.example.bankdata.utils.Constants
 import com.example.bankdata.view.BranchActivity
 import com.example.bankdata.viewmodels.MainViewModel
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity(), RecyclerViewAdapter.Listener {
 
     private val TAG = "üMainActivity"
     lateinit var binding : ActivityMainBinding
     lateinit var viewModel: MainViewModel
+
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
 
     private val retrofitService = RetrofitService.getInstance()
     var adapter = RecyclerViewAdapter(this@MainActivity)
@@ -37,6 +42,9 @@ class MainActivity : AppCompatActivity(), RecyclerViewAdapter.Listener {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Obtain the FirebaseAnalytics instance.
+        firebaseAnalytics = Firebase.analytics
 
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this)
         binding.recyclerView.layoutManager = layoutManager
@@ -74,28 +82,41 @@ class MainActivity : AppCompatActivity(), RecyclerViewAdapter.Listener {
         binding.searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 binding.searchView.clearFocus()
-                adapter.filter(query!!)
-                //viewModel.filter(query!!)
+                //adapter.filter(query!!)
+                viewModel.filter(query!!)
                 return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 //Toast.makeText(this@MainActivity, newText, Toast.LENGTH_SHORT).show()
-                //filterText(newText)
-                adapter.filter(newText!!)
-                //viewModel.filter(newText!!)
+                //adapter.filter(newText!!)
+                viewModel.filter(newText!!)
                 return true
             }
         })
     }
 
-    /*private fun filterText(newText: String?) {
-        var bdataList = listOf<BDataModel>()
-        for(model in BDataModel)
-    }*/
-
     override fun onItemClick(bDataModel: BDataModel) {
         //Toast.makeText(this, "Clicked : ${bDataModel.dc_BANKA_SUBE}", Toast.LENGTH_LONG).show()
+
+        val bundle = Bundle()
+        bundle.apply {
+            putInt(FirebaseAnalytics.Param.ITEM_NAME, bDataModel.ID)
+            putString(FirebaseAnalytics.Param.ITEM_NAME, bDataModel.dc_SEHIR)
+            putString(FirebaseAnalytics.Param.ITEM_NAME, bDataModel.dc_ILCE)
+            putString(FirebaseAnalytics.Param.ITEM_NAME, bDataModel.dc_BANKA_SUBE)
+            putString(FirebaseAnalytics.Param.ITEM_NAME, bDataModel.dc_BANKA_TIPI)
+            putString(FirebaseAnalytics.Param.ITEM_NAME, bDataModel.dc_BANK_KODU)
+            putString(FirebaseAnalytics.Param.ITEM_NAME, bDataModel.dc_ADRES_ADI)
+            putString(FirebaseAnalytics.Param.ITEM_NAME, bDataModel.dc_ADRES)
+            putString(FirebaseAnalytics.Param.ITEM_NAME, bDataModel.dc_POSTA_KODU)
+            putString(FirebaseAnalytics.Param.ITEM_NAME, bDataModel.dc_ON_OFF_LINE)
+            putString(FirebaseAnalytics.Param.ITEM_NAME, bDataModel.dc_ON_OFF_SITE)
+            putString(FirebaseAnalytics.Param.ITEM_NAME, bDataModel.dc_BOLGE_KOORDINATORLUGU)
+            putString(FirebaseAnalytics.Param.ITEM_NAME, bDataModel.dc_EN_YAKIM_ATM)
+        }
+        firebaseAnalytics?.logEvent(FirebaseAnalytics.Event.SELECT_ITEM, bundle)
+
         val intent = Intent(this, BranchActivity::class.java)
         intent.putExtra(BANK, bDataModel)
         startActivity(intent)
