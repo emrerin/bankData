@@ -12,19 +12,19 @@ import retrofit2.Response
 class MainViewModel(private val repository: MainRepository) : ViewModel() {
 
     val bDataList = MutableLiveData<List<BDataModel>>()
-    var masterList: List<BDataModel> = emptyList()
+    var masterList: List<BDataModel>? = null
     val errorMessage = MutableLiveData<String>()
     val progressBar = MutableLiveData<Boolean>()
 
     fun getAllBankData() {
+        progressBar.postValue(true)
         val response = repository.getAllBankData()
         response.enqueue(object : Callback<List<BDataModel>> {
             override fun onResponse(call: Call<List<BDataModel>>, response: Response<List<BDataModel>>) {
                 if(response.isSuccessful) {
-                    masterList = (response.body() as ArrayList<BDataModel>?)!!
-                    bDataList.postValue(response.body() as ArrayList<BDataModel>?)
-                    progressBar.postValue(true)
-                    bDataList.postValue(masterList)
+                    masterList = (response.body())
+                    bDataList.postValue(response.body())
+                    progressBar.postValue(false)
                 }
             }
 
@@ -35,9 +35,10 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
         })
     }
 
+    // it -> it.dc_SEHIR?.equals(query) == true
     fun filter(query : String)  {
-        bDataList.value = masterList.filter {
-            it -> it.dc_SEHIR!!.contains(query)
+        bDataList.value = masterList?.filter {
+                it -> it.dc_SEHIR?.contains(query, ignoreCase = true) == true
         }
     }
 }

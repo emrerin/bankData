@@ -23,6 +23,8 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_marginHorizontal="16dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:queryHint="Lütfen şehir ismi giriniz.."
         android:iconifiedByDefault="false"
         android:queryBackground="@android:color/transparent"
@@ -35,7 +37,7 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="80dp"
         android:layout_height="fill_parent"
-        android:visibility="visible"
+        android:visibility="gone"
         android:layout_gravity="center"
         android:rotation="180" />
 

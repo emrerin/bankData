@@ -64,32 +64,29 @@ class MainActivity : AppCompatActivity(), RecyclerViewAdapter.Listener {
         })
 
         viewModel.progressBar.observe(this, Observer {
-            if (!it) {
-                if(!Constants.isNetworkAvailable(context = this@MainActivity)) {
-                    Constants.showAlert(context = this@MainActivity, "DİKKAT", "Lütfen internet bağlantınızı kontrol ediniz.")
-                }
-            }
-            binding.progressBar.visibility = View.GONE
+            binding.progressBar.visibility=if(it){View.VISIBLE}else{View.GONE}
         })
 
         viewModel.errorMessage.observe(this, Observer {
             Log.d(TAG, "ğErrorMessage: $it")
         })
 
-        viewModel.getAllBankData()
+        if(Constants.isNetworkAvailable(context = this@MainActivity)) {
+            viewModel.getAllBankData()
+        } else {
+            Constants.showAlert(context = this@MainActivity, "DİKKAT", "Lütfen internet bağlantınızı kontrol ediniz.")
+        }
 
         // filter by city name
         binding.searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 binding.searchView.clearFocus()
-                //adapter.filter(query!!)
                 viewModel.filter(query!!)
                 return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 //Toast.makeText(this@MainActivity, newText, Toast.LENGTH_SHORT).show()
-                //adapter.filter(newText!!)
                 viewModel.filter(newText!!)
                 return true
             }
